@@ -1,1 +1,41 @@
 ;; a worksheet file for arrian for the Extempore hackday
+
+;; - install Extempore
+;;
+;;   http://benswift.me/2013-11-12-building-extempore-through-homebrew.html)
+
+;; - get this pack of samples from my dropbox:
+;; 
+;;   https://dl.dropboxusercontent.com/u/18333720/extempore-hackday-samples.tar.gz
+
+(sys:load "libs/xtm.xtm")
+
+
+;; make sure you set the right paths!
+(define *user-sample-dir* "/path/to/samples")
+(load "/path/to/extempore-hackday/sampler-maps.xtm")
+
+(define-sampler kit sampler_note_hermite_c sampler_fx)
+
+(sm-load-map kit *808-kit-map*)
+(sm-load-map kit *SSO-percussion-sample-map* 1)
+
+(bind-func dsp:[float,float,i64,i64,float*]*
+  (let ((osc (osc_mc_c 0.0))
+        (lpf (lpf_mc_c 2)))
+    (lambda (in time chan dat)
+      (kit in time chan dat))))
+
+(dsp:set! dsp)
+
+(define drumloop
+  (lambda (beat dur)
+    (if (= (modulo beat 1) 0)
+        (play kit *gm-kick* 130 dur))
+    (if (= (modulo beat 3/4) 0)
+        (play kit 50 90 dur))
+    (play kit (cosr 45 9 1/7) (cosr 80 30 1/2) .1)
+    (play kit (cosr 59 9 1/9) (cosr 80 30 1/2) (* dur (random '(1/4 1/4 5))) 1)
+    (callback (*metro* (+ beat (* .5 dur))) 'drumloop (+ beat dur) dur)))
+
+(drumloop (*metro* 'get-beat 4) 1/4)

@@ -51,10 +51,14 @@
 (define *gm-mute-surdo* 86)
 (define *gm-open-surdo* 87)
 
+(if (not (defined? '*user-sample-dir*))
+    (eval '(define *user-sample-dir* "/Users/ben/Music/sample-libs") 0))
+
 ;; Kit maps (using NI Battery 3 samples)
 
 (define *NI-synthetic-kit-sample-map*
-  (list "/Users/ben/Music/sample-libs/drums/NI/synthetic/Mega Synthetic Kit/Mega Synthetic Kit Samples"
+  (list (string-append *user-sample-dir*
+                       "/drums/NI/synthetic/Mega Synthetic Kit/Mega Synthetic Kit Samples")
         (list "ader.wav")
         (list "air sot.wav")
         (list "alien at.wav")
@@ -187,7 +191,8 @@
 
 
 (define *NI-NuPop-kit-sample-map*
-  (list "/Users/ben/Music/sample-libs/drums/NI/production/NuPop Kit/NuPop Kit Samples"
+  (list (string-append *user-sample-dir*
+                       "/drums/NI/production/NuPop Kit/NuPop Kit Samples")
         (list "BassDrum2_05.wav" *gm-kick-2*)
         (list "BassDrum_05.wav" *gm-kick*)
         (list "Clap.wav" *gm-hand-clap*)
@@ -214,7 +219,8 @@
 
 
 (define *NI-Nein-Oh-Nein-kit-sample-map*
-  (list "/Users/ben/Music/sample-libs/drums/NI/electronic/Nein Oh Nein Kit/Nein Oh Nein Kit Samples"
+  (list (string-append *user-sample-dir*
+                       "/drums/NI/electronic/Nein Oh Nein Kit/Nein Oh Nein Kit Samples")
         (list "NON BD 1_A1.wav" *gm-kick*)
         (list "NON BD 2_A1.wav" *gm-kick-2*)
         (list "NON CH 3.wav" *gm-closed-hi-hat*)
@@ -233,7 +239,8 @@
 
 
 (define *NI-Dakeat-kit-sample-map*
-  (list "/Users/ben/Music/sample-libs/drums/NI/electronic/Dakeat Kit/Dakeat Kit Samples"
+  (list (string-append *user-sample-dir*
+                       "/drums/NI/electronic/Dakeat Kit/Dakeat Kit Samples")
         (list "DK_bd_01.wav")
         (list "DK_bibybit_01.wav")
         (list "DK_bitbybit_02.wav")
@@ -285,7 +292,8 @@
 
 
 (define *NI-jazz-kit-sample-map*
-  (list "/Users/ben/Music/sample-libs/drums/NI/acoustic/Full Jazz Kit Samples"
+  (list (string-append *user-sample-dir*
+                       "/drums/NI/acoustic/Full Jazz Kit Samples")
         (list "Bass Drum 18_23.wav" *gm-kick*)
         (list "Crash 17 Bell Br_04.wav" *gm-crash-2*)
         (list "Crash 17 Br_15.wav" *gm-crash*)
@@ -326,7 +334,8 @@
 
 
 (define *NI-heavy-rock-kit-sample-map*
-  (list "/Users/ben/Music/sample-libs/drums/NI/acoustic/Heavy Rock Kit Samples"
+  (list (string-append *user-sample-dir*
+                       "/drums/NI/acoustic/Heavy Rock Kit Samples")
         (list "HRK_Dir_BD1_15.WAV" *gm-kick*)
         (list "HRK_Dir_BD2_15.WAV" *gm-kick-2*)
         (list "HRK_Dir_HH_cls_10.WAV" *gm-closed-hi-hat*)
@@ -342,7 +351,7 @@
         (list "HRK_Dir_tom3_13.WAV" *gm-low-mid-tom*)
         (list "HRK_Dir_tom4_13.WAV" *gm-hi-tom*)))
 
-;; (define *salamander-kit-dir* "/Users/ben/Music/sample-libs/drums/salamander/OH")
+;; (define *salamander-kit-dir* "/drums/salamander/OH")
 ;; (define *salamander-kit-sample-map*
 ;;   (list
 ;;    (list "bellchime_F_2.wav")
@@ -883,7 +892,8 @@
 
 
 (define *NI-steinway-sample-map*
-  (list "/Users/ben/Music/sample-libs/piano/steinway"
+  (list (string-append *user-sample-dir*
+                       "/piano/steinway")
         (list "Stein-R(G6)-V(082)-dB(3971)-T(ML)-M(34)-P(719-02-03).WAV" 103)
         (list "Stein-R(G5)-V(090)-dB(3102)-T(ML)-M(37)-P(731-03-03).WAV" 91)
         (list "Stein-R(G4)-V(085)-dB(4467)-T(ML)-M(28)-P(793-01-03).WAV" 79)
@@ -939,7 +949,8 @@
 
 ;; SSO orchestral samples
 
-(define *SSO-sample-path* "/Users/ben/Music/sample-libs/sso/Samples/")
+(define *SSO-sample-path* (string-append *user-sample-dir*
+                                         "/sso/Samples/"))
 
 (define *SSO-solo-violin-sample-map*
   (list (string-append *SSO-sample-path* "Violin")
@@ -1709,9 +1720,139 @@
         (list "oboes-sus-g4.wav" 67)
         (list "oboes-sus-g5.wav" 79)))
 
-;; (define *SSO-percussion-sample-map*
-;;   (list (string-append *SSO-sample-path* "Percussion")
-;;         ))
+;; not general-midi numbered yet
+(define *SSO-percussion-sample-map*
+  (list (string-append *SSO-sample-path* "Percussion")
+        (list "bar_chimes-a.wav")
+        (list "bar_chimes-b.wav")
+        (list "bar_chimes-c.wav")
+        (list "bass_drum-f.wav" *gm-kick*)
+        (list "bass_drum-p.wav" *gm-kick-2*)
+        (list "bell_tree.wav")
+        (list "cabasa-a.wav")
+        (list "cabasa-b.wav")
+        (list "castanets-rr1.wav")
+        (list "castanets-rr2.wav")
+        (list "chimes-a3.wav")
+        (list "chimes-a4.wav")
+        (list "chimes-a5.wav")
+        (list "chimes-c3.wav")
+        (list "chimes-c4.wav")
+        (list "chimes-c5.wav")
+        (list "chimes-c6.wav")
+        (list "chimes-d#3.wav")
+        (list "chimes-d#4.wav")
+        (list "chimes-d#5.wav")
+        (list "chimes-f#3.wav")
+        (list "chimes-f#4.wav")
+        (list "chimes-f#5.wav")
+        (list "conga-mut-rr1.wav")
+        (list "conga-mut-rr2.wav")
+        (list "conga-opn-rr1.wav")
+        (list "conga-opn-rr2.wav")
+        (list "conga-slp-rr1.wav")
+        (list "conga-slp-rr2.wav")
+        (list "cymbal_roll-a-f.wav")
+        (list "cymbal_roll-a-mf.wav")
+        (list "cymbal_roll-a-p.wav")
+        (list "cymbal_roll-b.wav")
+        (list "finger_cymbal-hi.wav")
+        (list "finger_cymbal-lo.wav")
+        (list "glockenspiel-a3.wav")
+        (list "glockenspiel-a4.wav")
+        (list "glockenspiel-a5.wav")
+        (list "glockenspiel-c3.wav")
+        (list "glockenspiel-c4.wav")
+        (list "glockenspiel-c5.wav")
+        (list "glockenspiel-c6.wav")
+        (list "glockenspiel-d#3.wav")
+        (list "glockenspiel-d#4.wav")
+        (list "glockenspiel-d#5.wav")
+        (list "glockenspiel-f#3.wav")
+        (list "glockenspiel-f#4.wav")
+        (list "glockenspiel-f#5.wav")
+        (list "piatti.wav")
+        (list "ratchet.wav")
+        (list "shaker-a.wav")
+        (list "shaker-b.wav")
+        (list "shaker-c.wav")
+        (list "shaker-hi-a.wav")
+        (list "shaker-hi-b.wav")
+        (list "shaker-lo-a.wav")
+        (list "shaker-lo-b.wav")
+        (list "sleigh_bells-f.wav")
+        (list "sleigh_bells-mf.wav")
+        (list "snare-lh-ff.wav")
+        (list "snare-lh-mf.wav")
+        (list "snare-lh-p.wav")
+        (list "snare-rh-ff.wav")
+        (list "snare-rh-mf.wav")
+        (list "snare-rh-p.wav")
+        (list "snare-roll.wav")
+        (list "tambourine-hit-f.wav")
+        (list "tambourine-hit-mf.wav")
+        (list "tambourine-roll.wav")
+        (list "tambourine-shake.wav")
+        (list "tamtam-a.wav")
+        (list "tamtam-b.wav")
+        (list "tamtam-c.wav")
+        (list "timpani-f-lh-a1.wav")
+        (list "timpani-f-lh-c1.wav")
+        (list "timpani-f-lh-c2.wav")
+        (list "timpani-f-lh-d#1.wav")
+        (list "timpani-f-lh-f#1.wav")
+        (list "timpani-f-rh-a1.wav")
+        (list "timpani-f-rh-c1.wav")
+        (list "timpani-f-rh-c2.wav")
+        (list "timpani-f-rh-d#1.wav")
+        (list "timpani-f-rh-f#1.wav")
+        (list "timpani-p-lh-a1.wav")
+        (list "timpani-p-lh-c1.wav")
+        (list "timpani-p-lh-c2.wav")
+        (list "timpani-p-lh-d#1.wav")
+        (list "timpani-p-lh-f#1.wav")
+        (list "timpani-p-rh-a1.wav")
+        (list "timpani-p-rh-c1.wav")
+        (list "timpani-p-rh-c2.wav")
+        (list "timpani-p-rh-d#1.wav")
+        (list "timpani-p-rh-f#1.wav")
+        (list "timpani-roll-a1.wav")
+        (list "timpani-roll-c1.wav")
+        (list "timpani-roll-c2.wav")
+        (list "timpani-roll-crsc-a1.wav")
+        (list "timpani-roll-crsc-c1.wav")
+        (list "timpani-roll-crsc-c2.wav")
+        (list "timpani-roll-crsc-d#1.wav")
+        (list "timpani-roll-crsc-f#1.wav")
+        (list "timpani-roll-d#1.wav")
+        (list "timpani-roll-f#1.wav")
+        (list "triangle-hlf-opn-rr1.wav")
+        (list "triangle-hlf-opn-rr2.wav")
+        (list "triangle-hlf-opn-rr3.wav")
+        (list "triangle-mtd-rr1.wav")
+        (list "triangle-mtd-rr2.wav")
+        (list "triangle-mtd-rr3.wav")
+        (list "triangle-opn-rr1.wav")
+        (list "triangle-opn-rr2.wav")
+        (list "triangle-opn-rr3.wav")
+        (list "triangle-roll.wav")
+        (list "vibraslap.wav")
+        (list "wood_block-hi.wav")
+        (list "wood_block-lo.wav")
+        (list "xylophone-a#2.wav")
+        (list "xylophone-a#3.wav")
+        (list "xylophone-a#4.wav")
+        (list "xylophone-a#5.wav")
+        (list "xylophone-c#3.wav")
+        (list "xylophone-c#4.wav")
+        (list "xylophone-c#5.wav")
+        (list "xylophone-e3.wav")
+        (list "xylophone-e4.wav")
+        (list "xylophone-e5.wav")
+        (list "xylophone-g2.wav")
+        (list "xylophone-g3.wav")
+        (list "xylophone-g4.wav")
+        (list "xylophone-g5.wav")))
 
 (define *SSO-piccolo-sample-map*
   (list (string-append *SSO-sample-path* "Piccolo")
@@ -1881,6 +2022,41 @@
         (list "tuba-sus-g2.wav" 43 0)
         (list "tuba-sus-g3.wav" 55 0)))
 
+(define *808-kit-map*
+  (list (string-append *user-sample-dir* "/drums/808")
+        (list "36.aif" 36)
+        (list "37.aif" 37)
+        (list "38.aif" 38)
+        (list "39.aif" 39)
+        (list "40.aif" 40)
+        (list "41.aif" 41)
+        (list "42.aif" 42)
+        (list "43.aif" 43)
+        (list "44.aif" 44)
+        (list "45.aif" 45)
+        (list "46.aif" 46)
+        (list "47.aif" 47)
+        (list "48.aif" 48)
+        (list "49.aif" 49)
+        (list "50.aif" 50)
+        (list "51.aif" 51)
+        (list "52.aif" 52)
+        (list "53.aif" 53)
+        (list "54.aif" 54)
+        (list "55.aif" 55)
+        (list "56.aif" 56)
+        (list "57.aif" 57)
+        (list "58.aif" 58)
+        (list "59.aif" 59)
+        (list "60.aif" 60)
+        (list "61.aif" 61)
+        (list "62.aif" 62)
+        (list "63.aif" 63)
+        (list "64.aif" 64)
+        (list "65.aif" 65)
+        (list "66.aif" 66)))
+
+
 ;; helper functions
 
 (define sm-assign-indices
@@ -1952,35 +2128,37 @@
            (append used-indices unused-indices)))))
 
 (define-macro (sm-load-map sampler sample-map . bank)
-  `(let* ((sample-dir (car ,sample-map))
-          (sample-bank ,(if (null? bank) 0 (car bank)))
-          (processed-samples (sm-fill-partial-map (cdr ,sample-map)))
-          (num-banks 20)
-          (count-vec (make-vector num-banks 0)))
-     (for-each (lambda (sample)
-                 (if sample
-                     ;; inst fname index offset lgth bank print?
-                     (let ((bank (+ sample-bank (list-ref sample 4))))
-                       (set-sampler-index ,sampler
-                                          (string-append sample-dir "/" (car sample))
-                                          (cadr sample)
-                                          (caddr sample)
-                                          (cadddr sample)
-                                          bank
-                                          0)
-                       (vector-set! count-vec
-                                    bank
-                                    (+ (vector-ref count-vec bank) 1)))))
-               processed-samples)
-     (ascii-print-color 0 6 10)
-     (make-list-with-proc num-banks
-                          (lambda (bank-index)
-                            (let ((samples-loaded (vector-ref count-vec bank-index)))
-                              (if (> samples-loaded 0)
-                                  (begin (print "Loaded"
-                                                samples-loaded
-                                                "files into bank"
-                                                bank-index)
-                                         (println))))))
-     (ascii-print-color 0 7 10)
-     (println)))
+  (if (null? *user-sample-dir*)
+      (print-error 'error: 'you 'need 'to 'define '*user-sample-dir*)
+      `(let* ((sample-dir (car ,sample-map))
+              (sample-bank ,(if (null? bank) 0 (car bank)))
+              (processed-samples (sm-fill-partial-map (cdr ,sample-map)))
+              (num-banks 20)
+              (count-vec (make-vector num-banks 0)))
+         (for-each (lambda (sample)
+                     (if sample
+                         ;; inst fname index offset lgth bank print?
+                         (let ((bank (+ sample-bank (list-ref sample 4))))
+                           (set-sampler-index ,sampler
+                                              (string-append sample-dir "/" (car sample))
+                                              (cadr sample)
+                                              (caddr sample)
+                                              (cadddr sample)
+                                              bank
+                                              0)
+                           (vector-set! count-vec
+                                        bank
+                                        (+ (vector-ref count-vec bank) 1)))))
+                   processed-samples)
+         (ascii-print-color 0 6 10)
+         (make-list-with-proc num-banks
+                              (lambda (bank-index)
+                                (let ((samples-loaded (vector-ref count-vec bank-index)))
+                                  (if (> samples-loaded 0)
+                                      (begin (print "Loaded"
+                                                    samples-loaded
+                                                    "files into bank"
+                                                    bank-index)
+                                             (println))))))
+         (ascii-print-color 0 7 10)
+         (println))))
