@@ -32,9 +32,15 @@
           (sawlead in time chan dat)
           (piano in time chan dat)))))
 
-(define nuts
+
+(dsp:set! dsp)
+
+
+(random '(10 10 10 40 50 80))
+
+(define nuts)
   (lambda (beat dur)
-    (play-note (now) sawlead (random '(10 10 10 40 50 80)) 100 (* 44100 0.2))
+    (play-note (now) sawlead (cosr 40 60 1/4) (random '(20 20 20 50)) (* 44100 0.5))
     (callback (*metro* (+ beat (* .5 dur))) 'nuts (+ beat dur) dur)))
 
 (nuts (*metro* 'get-beat 4) 1/4)
@@ -45,24 +51,60 @@
 
 (random '(32 30 60 67 72))
 
-(define tuneage
+(define tuneage)
   (lambda (beat dur)
-    (play-note (now) piano (cosr 40 60 1/8) 100 44100)
+    (play-note (now) piano (cosr 40 60 1/16) (cosr 50 30 1/2) 44100)
     (callback (*metro* (+ beat (* .5 dur))) 'tuneage (+ beat dur) dur)))
 
 (tuneage (*metro* 'get-beat 4) 1/4)
 
-
-(dsp:set! dsp)
-
-(define drumloop)
+(define piano2)
   (lambda (beat dur)
+    (play-note (now) piano (cosr 40 60 1/4) (cosr 50 30 1/2) (* 2 44100))
+    (callback (*metro* (+ beat (* .5 dur))) 'piano2 (+ beat dur) dur)))
+
+(piano2 (*metro* 'get-beat 4) 1/4)
+
+
+
     (if (= (modulo beat 1) 0)
         (play kit *gm-kick* 130 dur))
     (if (= (modulo beat 4/4) 0)
         (play kit 100 90 dur))
-    (play kit (cosr 10 9 1/7) (cosr 80 30 1/2) .1)
-    (play kit (cosr 59 9 1/9) (cosr 80 30 1/2) (* dur (random '(1/4 1/2 5))) 1)
+
+
+(define drumloop)
+  (lambda (beat dur)
+    (play kit (cosr 59 9 1/4) (cosr 80 30 1/2) (* dur (random '(1/4 1/2 5))) 1)
     (callback (*metro* (+ beat (* .5 dur))) 'drumloop (+ beat dur) dur)))
 
+
+(play-note (now) kit *gm-kick* 100 44100)
+(play-note (now) kit 36 150 0.2)
+
 (drumloop (*metro* 'get-beat 4) 1/4)
+
+
+(define drums
+  (lambda (beat dur)
+    (if (= (modulo beat 1) 0)
+        (play kit (random '(35 36)) 130 dur))
+    (if (= (modulo beat 4) 0)
+        (play kit 37 120 dur))
+    (if (= (modulo beat 1/2) 0)
+        (play kit 40 (cosr 50 50 1/8) dur))
+    (if (= (modulo beat (random '(1 1/2 1/4))) 0)
+        (play kit 41 100 dur))
+    (callback (*metro* (+ beat (* .5 dur))) 'drums (+ beat dur) dur)))
+
+(drums (*metro* 'get-beat 8) 1/8)
+
+(define classic)
+  (lambda (beat dur)
+    (play piano (cosr 70 10 1/4) 50 1)
+    (if (= (modulo beat 2) 0)
+      (play piano (random '(30 40 50)) 80 1))
+    (callback (*metro* (+ beat (* .5 dur))) 'classic (+ beat dur) dur)))
+
+(classic (*metro* 'get-beat 4) 1/4)
+
