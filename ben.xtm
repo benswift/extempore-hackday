@@ -32,8 +32,9 @@
 	(bpf (lpf_mc_c 2)))
     (lambda (in time chan dat)
       (+ (* 6. (subbass in time chan dat))
-	 (piano in time chan dat)
-	 (kit in time chan dat)))))
+         (piano in time chan dat)
+         (kit in time chan dat)
+         (sawlead in time chan dat)))))
 
 (dsp:set! dsp)
 
@@ -101,8 +102,6 @@
 
 (bassline (*metro* 'get-beat 4) 1/4 '(0 -2 -5 3))
 
-(println (pc:scale 0 'ionian))
-
 (define speak
   (lambda (beat dur idx str)
     (play kit (- (char->integer (list-ref (string->list str) idx)) 32)
@@ -131,3 +130,40 @@
     (callback (*metro* (+ beat (* .5 dur))) 'list-iterator (+ beat dur) dur (rotate lst -1))))
 
 (list-iterator (*metro* 'get-beat 4) 1 '(1 2 3))
+
+(sys:load "libs/core/topclock.xtm")
+
+(define lead)
+(lambda (beat dur ps)
+  (for-each (lambda (p)
+              (if (< (random) .8)
+                  
+                  (play sawlead (+ p (pc:relative (if (< (modulo beat 4) 2) 60 65)
+                                                  (car ps)
+                                                  (pc:scale 0 'ionian)))
+                        (random 60 80) (car dur))))
+            '(0 13 16 -12))
+  (callback (*metro* (+ beat (* .5 (car dur))))
+            'lead
+            (+ beat (car dur))
+            (rotate dur -1)
+            (rotate ps -1)))
+
+(lead (*metro* 'get-beat 4)
+      '(1/4 1/4 1/2 1)
+      '(0 1 2 2))
+
+(define bline
+  (lambda (beat dur)
+    
+    (callback (*metro* (+ beat (* .5 dur))) 'bline (+ beat dur) dur)))
+
+(bline (*metro* 'get-beat 4) 1/4)
+
+(define fun-name
+  (lambda (beat dur)
+    (if (= (modulo beat 1) 0)
+        (play kit 51 100 .1))
+    (callback (*metro* (+ beat (* .5 dur))) 'fun-name (+ beat dur) dur)))
+
+(fun-name (*metro* 'get-beat 4) 1/4)
