@@ -132,16 +132,16 @@
 (classic (*metro* 'get-beat 4) 1/4)
 
 
-(define tremy)
+(define tremy
   (lambda (beat dur)
     ;;(if (= (modulo beat 1/8) 0)
     ;;(play trombone (random 40 60) 80 dur)
-    (play trombone (cosr 60 10 1/8) 100 dur)
+    (play trombone (cosr 60 10 1/8) (random 40 120) dur)
     ;;(if (= (modulo beat 1/2) 0)
     ;;  (play piano (random 40 60) 120 dur))
     (callback (*metro* (+ beat (* .5 dur))) 'tremy (+ beat dur) dur)))
 
-(tremy (*metro* 'get-beat 4) 1/4)
+(tremy (*metro* 'get-beat 4) 1/2)
 
 
 (define bitchen)
@@ -159,5 +159,5 @@
 (bitchen (*metro* 'get-beat 4) 1/4)
 
 
-(play-note (now) trombone 50 100 44100)
+(play-note (now) trombone 60 100 (* 44100 8))
 
