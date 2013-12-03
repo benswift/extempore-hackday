@@ -10,10 +10,17 @@
 
 (sys:load "libs/xtm.xtm")
 
+(sys:load "libs/core/math.xtm")
+(sys:load "libs/core/audio_dsp.xtm")
+(sys:load "libs/core/instruments.xtm")
+;(sys:load "libs/external/instruments_ext.xtm")
+
+;(sys:load "libs/core/topclock.xtm")
+
 
 ;; make sure you set the right paths!
-(define *user-sample-dir* "/path/to/samples")
-(load "/path/to/extempore-hackday/sampler-maps.xtm")
+(define *user-sample-dir* "C:/Users/Arrian/Desktop/samples")
+(load "C:/Dev/GitHub/extempore-hackday/sampler-maps.xtm")
 
 (define-sampler kit sampler_note_hermite_c sampler_fx)
 
@@ -24,9 +31,30 @@
   (let ((osc (osc_mc_c 0.0))
         (lpf (lpf_mc_c 2)))
     (lambda (in time chan dat)
-      (kit in time chan dat))))
+      (+ 
+      (sawlead in time chan dat)
+      (fmsynth in time chan dat)))))
+
+(println "test")
 
 (dsp:set! dsp)
+
+(play-note (now) sawlead 60 80 44100)
+
+(define sawtr
+  (lambda (beat dur)
+    (play sawlead (random '(62 57 54 66)) 80 (random 1/2 dur))
+    (callback (*metro* (+ beat dur)) 'sawtr (+ beat dur) dur)))
+
+(sawtr (*metro* 'get-beat 4) 1/4)
+
+(define fmtr
+  (lambda (beat dur)
+    (println beat)
+    (play fmsynth 60 80 dur)
+    (callback (*metro* (+ beat (* .5 dur))) 'fmtr (+ beat dur) dur)))
+
+(fmtr (*metro* 'get-beat 4) 1/2)
 
 (define drumloop
   (lambda (beat dur)
