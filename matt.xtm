@@ -9,33 +9,110 @@
 ;;   https://dl.dropboxusercontent.com/u/18333720/extempore-hackday-samples.tar.gz
 
 (sys:load "libs/xtm.xtm")
+(sys:load "libs/core/topclock.xtm")
 
 
 ;; make sure you set the right paths!
-(define *user-sample-dir* "/path/to/samples")
-(load "/path/to/extempore-hackday/sampler-maps.xtm")
+(define *user-sample-dir* "/Users/Matt/Developer/extempore-hackday-samples")
+(load "/Users/Matt/Developer/extempore-hackday/sampler-maps.xtm")
 
 (define-sampler kit sampler_note_hermite_c sampler_fx)
+(define-sampler piano sampler_note_hermite_c sampler_fx)
+(define-sampler contra sampler_note_hermite_c sampler_fx)
+(define-sampler voices sampler_note_hermite_c sampler_fx)
 
 (sm-load-map kit *808-kit-map*)
 (sm-load-map kit *SSO-percussion-sample-map* 1)
+(sm-load-map piano *SSO-piano-sample-map*)
+(sm-load-map contra *SSO-contrabasoon-sample-map*)
+(sm-load-map voices *SSO-chorus-sample-map*)
 
 (bind-func dsp:[float,float,i64,i64,float*]*
   (let ((osc (osc_mc_c 0.0))
         (lpf (lpf_mc_c 2)))
     (lambda (in time chan dat)
-      (kit in time chan dat))))
+      (+ (piano in time chan dat)
+         (contra in time chan dat)
+         (voices in time chan dat)
+         (kit in time chan dat)))))
 
 (dsp:set! dsp)
 
-(define drumloop
-  (lambda (beat dur)
-    (if (= (modulo beat 1) 0)
-        (play kit *gm-kick* 130 dur))
-    (if (= (modulo beat 3/4) 0)
-        (play kit 50 90 dur))
-    (play kit (cosr 45 9 1/7) (cosr 80 30 1/2) .1)
-    (play kit (cosr 59 9 1/9) (cosr 80 30 1/2) (* dur (random '(1/4 1/4 5))) 1)
-    (callback (*metro* (+ beat (* .5 dur))) 'drumloop (+ beat dur) dur)))
+(play-note (now) piano (random '(60 60 67 72 84)) 80 44100)
+(play-note (now) contra 60 120 200000)
 
-(drumloop (*metro* 'get-beat 4) 1/4)
+
+(define tonic 10)
+
+(play-note (now) piano 83 120 4000)
+(play-note (now) kit *gm-hand-clap* 120 4000)
+
+(println (pc:scale 0 'octatonic))
+
+
+
+
+(define fun-name
+  (lambda (beat dur)
+     (if (= (modulo beat 1) 0)
+        (play kit 52 100 .1))
+    (callback (*metro* (+ beat (* .5 dur))) 'fun-name (+ beat dur) dur)))
+
+(fun-name (*metro* 'get-beat 4) 1/4)
+
+
+ (if (= (modulo beat 4) 0)
+    (play kit 52 100 .1))
+
+ (if (= (modulo beat 4) 0)
+    (play kit 52 100 .1))
+
+(define hit 1)
+
+
+(define chords)
+  (lambda (beat dur)
+    (play piano (cosr 80 7 1/4) (cosr 20 30 1/2) 100)
+    (play piano (cosr 65 7 1/4) (cosr 20 30 1/2) 100)
+    
+    (play piano (cosr 43 7 1/4) (cosr 20 30 1/2) 100)    
+    (callback (*metro* (+ beat (* .5 dur))) 'chords (+ beat dur) dur))))
+
+(chords (*metro* 'get-beat 6) 1/4)
+
+(define d 0.2)
+
+
+
+(define drumloop)
+  (lambda (beat dur)
+;;    (if (= (modulo beat 1) 0)
+;;        (play kit *gm-kick-2* 130 dur))
+;;    (if (= (modulo beat 3.75) 0)
+;;        (play kit 55 120 dur)) 
+;;    (if (= (modulo beat 1.75) 0)
+;;        (play kit 69 120 dur))        
+;;    (if (= (modulo beat 2) 0)
+        (play-note (now) kit 34 120 44100)       
+;;    (if (= (modulo beat 0.75) 0)
+;;        (play kit tonic 130 dur))
+;;    (if (= (modulo beat 0.75) 0)
+;;        (play kit (- tonic 12) 130 dur))    
+;;    (if (= (modulo beat 0.75) 0)
+;;        (play kit *gm-kick* 110 1/8))
+;;    (if (= (modulo beat 0.75) 0)
+;;        (play kit (- tonic 16) 90 dur))
+;;    (if (= (modulo beat 0.75) 0)
+;;        (play kit (+ tonic 3) 110 1/4))
+;;    (if (= (modulo beat 0.75) 0)
+;;        (play kit (+ tonic 2) 120 1/8))
+
+    (if (= (modulo beat 1.2) 0)
+    (play voices (cosr 43 2 1/11) (cosr 80 70 1/10) d))    
+
+    (play piano (cosr 75 8 1/9) (cosr 50 30 1/2) (* dur (random '(1/3 1/5 4))) 4)
+    (play piano (cosr 72 7 1/6) (cosr 110 30 1/8) (* dur (random '(1/5 1/32 1/11))) 3)    
+    (play piano (cosr 87 6 1/7) (cosr 90 30 1/8) (* dur (random '(1/16 1/17 1/14))) 2)        
+    (callback (*metro* (+ beat (* .2 dur))) 'drumloop (+ beat dur) dur)))
+
+(drumloop (*metro* 'get-beat 3) 1/4)
