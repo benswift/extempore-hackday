@@ -12,30 +12,215 @@
 
 
 ;; make sure you set the right paths!
-(define *user-sample-dir* "/path/to/samples")
-(load "/path/to/extempore-hackday/sampler-maps.xtm")
+(define *user-sample-dir* "/Users/torben/Projects/extempore/samples/hackday")
+(load "/Users/torben/Projects/extempore/extempore-hackday/sampler-maps.xtm")
 
 (define-sampler kit sampler_note_hermite_c sampler_fx)
+(define-sampler piano sampler_note_hermite_c sampler_fx)
+(define-sampler trombone sampler_note_hermite_c sampler_fx)
+(define-sampler coolkit sampler_note_hermite_c sampler_fx)
+(define-sampler violin sampler_note_hermite_c sampler_fx)
+
 
 (sm-load-map kit *808-kit-map*)
 (sm-load-map kit *SSO-percussion-sample-map* 1)
+
+(sm-load-map piano *SSO-piano-sample-map*)
+(sm-load-map trombone *SSO-tenor-trombone-sample-map*)
+(sm-load-map coolkit *NI-heavy-rock-kit-sample-map*)
+(sm-load-map violin *SSO-violin-2-sample-map*)
 
 (bind-func dsp:[float,float,i64,i64,float*]*
   (let ((osc (osc_mc_c 0.0))
         (lpf (lpf_mc_c 2)))
     (lambda (in time chan dat)
-      (kit in time chan dat))))
+      (+  (kit in time chan dat)
+          (sawlead in time chan dat)
+          (piano in time chan dat)
+          (trombone in time chan dat)
+          (coolkit in time chan dat)
+          (violin in time chan dat)))))
+
 
 (dsp:set! dsp)
 
-(define drumloop
+
+
+
+
+
+(random '(10 10 10 40 50 80))
+
+(define nuts)
   (lambda (beat dur)
+    (play sawlead (cosr 40 60 1/4) (sinr 30 20 1/4) dur)
+    (callback (*metro* (+ beat (* .5 dur))) 'nuts (+ beat dur) dur)))
+
+(nuts (*metro* 'get-beat 4) 1/4)
+
+
+(play-note (now) piano (random '(60 60 67 72 84)) 80 44100)
+
+
+(random '(32 30 60 67 72))
+
+(define tuneage)
+  (lambda (beat dur)
+    (play-note (now) piano (cosr 40 60 1/16) (cosr 50 30 1/2) 44100)
+    (callback (*metro* (+ beat (* .5 dur))) 'tuneage (+ beat dur) dur)))
+
+(tuneage (*metro* 'get-beat 4) 1/4)
+
+(define piano2)
+  (lambda (beat dur)
+    (play-note (now) piano (cosr 40 60 1/4) (cosr 50 30 1/2) (* 2 44100))
+    (callback (*metro* (+ beat (* .5 dur))) 'piano2 (+ beat dur) dur)))
+
+(piano2 (*metro* 'get-beat 4) 1/4)
+
+
+
     (if (= (modulo beat 1) 0)
         (play kit *gm-kick* 130 dur))
-    (if (= (modulo beat 3/4) 0)
-        (play kit 50 90 dur))
-    (play kit (cosr 45 9 1/7) (cosr 80 30 1/2) .1)
-    (play kit (cosr 59 9 1/9) (cosr 80 30 1/2) (* dur (random '(1/4 1/4 5))) 1)
+    (if (= (modulo beat 4/4) 0)
+        (play kit 100 90 dur))
+
+
+(define drumloop)
+  (lambda (beat dur)
+    (play kit (cosr 59 9 1/4) (cosr 80 30 1/2) (* dur (random '(1/4 1/2 5))) 1)
     (callback (*metro* (+ beat (* .5 dur))) 'drumloop (+ beat dur) dur)))
 
 (drumloop (*metro* 'get-beat 4) 1/4)
+
+
+(play-note (now) kit *gm-kick* 100 44100)
+(play-note (now) kit 36 150 1)
+
+
+(define sample-drums
+  (lambda (beat dur pitch)
+    (play kit pitch 120 dur)
+    (println pitch)
+    (callback (*metro* (+ beat (* .5 dur))) 'sample-drums (+ beat dur) dur (+ pitch 1))))
+
+(sample-drums (*metro* 'get-beat 4) 1/2 35)
+
+
+
+(define drums)
+  (lambda (beat dur)
+    (if (= (modulo beat 1) 0)
+        (play kit (random '(35 36)) 130 dur))
+    (if (= (modulo beat 4) 0)
+        (play kit 37 120 dur))
+    (if (= (modulo beat 1/2) 0)
+        (play kit 40 (cosr 50 50 1/8) dur))
+    (if (= (modulo beat (random '(1 1/2 1/4))) 0)
+        (play kit 41 100 dur))
+    (if (= (modulo beat 1/4) 0)
+        (play kit (cosr 50 5 1/9) 100 dur))
+    (if (= (modulo beat 1/4) 0)
+        (play kit (cosr 70 10 1/5) 150 dur))
+    (if (= (modulo beat 1/4) 0)
+        (play kit (cosr 50 20 1/16) 150 dur))
+    (callback (*metro* (+ beat (* .5 dur))) 'drums (+ beat dur) dur)))
+
+(drums (*metro* 'get-beat 8) 1/16)
+
+(define classic)
+  (lambda (beat dur)
+    (play piano (cosr 70 10 1/4) 100 1)
+    (if (= (modulo beat 1) 0)
+      (play piano (random '(32 32 40 45)) 40 1))
+    (callback (*metro* (+ beat (* .5 dur))) 'classic (+ beat dur) dur)))
+
+(classic (*metro* 'get-beat 4) 1/4)
+
+
+(define tremy)
+  (lambda (beat dur)
+    ;;(if (= (modulo beat 1/8) 0)
+    ;;(play trombone (random 40 60) 80 dur)
+    (play trombone (cosr 60 10 1/8) (random 40 120) dur)
+    ;;(if (= (modulo beat 1/2) 0)
+    ;;  (play piano (random 40 60) 120 dur))
+    (callback (*metro* (+ beat (* .5 dur))) 'tremy (+ beat dur) dur)))
+
+(tremy (*metro* 'get-beat 4) 1/2)
+
+
+(define bitchen)
+  (lambda (beat dur)
+    (if (= (modulo beat 2) 0)
+        (play kit 41 150 dur))
+    ;;(if (= (modulo beat 1) 0)
+    ;;   (play coolkit 38 (sinr 100 20 1/4) dur))
+    ;;(if (= (modulo beat (random '(1/4 1/2))) 0)
+    (play coolkit 50 (cosr 50 60 1/4) dur)
+    (play coolkit (random 0 50) 100 dur)
+    (callback (*metro* (+ beat (* .5 dur))) 'bitchen (+ beat dur) dur)))
+
+(bitchen (*metro* 'get-beat 4) 1/4)
+
+(define darkpiano)
+  (lambda (beat dur)
+    (play piano (sinr 10 10 1/5) (cosr 120 20 1/3) dur)
+    (callback (*metro* (+ beat (* .5 dur))) 'darkpiano (+ beat dur) dur)))
+
+(darkpiano (*metro* 'get-beat 4) 1/4)
+
+
+
+(play-note (now) coolkit *gm-hand-clap* 100 44100)
+
+
+(sys:load "libs/core/topclock.xtm")
+
+
+(play-note (now) trombone 60 100 (* 44100 1))
+
+
+
+(define viomadness)
+  (lambda (beat dur)
+    (play violin (+ (sinr 60 20 1/4) (random 10 15)) (random 80 100) dur)
+    (callback (*metro* (+ beat (* .5 dur))) 'viomadness (+ beat dur) dur)))
+
+(viomadness (*metro* 'get-beat 4) 1/8)
+
+(play-note (now) violin 60 100 (* 44100 1))
+
+
+
+(define fun-name
+  (lambda (beat dur)
+    (if (= (modulo beat 4) 0)
+      (play coolkit 20 150 dur))
+    (if (= (modulo beat 4) 2)
+      (play coolkit 10 60 dur))
+    (if (= (modulo beat 1/2) 0)
+      (play coolkit (random 20 40) 40 dur))
+    (callback (*metro* (+ beat (* .5 dur))) 'fun-name (+ beat dur) dur)))
+
+(fun-name (*metro* 'get-beat 4) 1/4)
+
+
+;; GRAPHICS:
+
+;; (define width 800)
+;; (define height 600)
+;; (bind-val width float width)
+;; (bind-val height float height)
+;; (define fullscreen #f)
+;; 
+;; (sys:load "/Users/ben/Code/xtm/lib/vg-setup.xtm")
+;; 
+;; (ipc:xtm-render-setup "utility")
+;; 
+;; (bind-func gl_render
+;;   (lambda ()
+;;     ;;          pre  opaq trans post    data
+;;     (xtm_render null null null  vgframe null)
+;;     void))
+

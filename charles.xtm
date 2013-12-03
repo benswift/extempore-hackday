@@ -1,3 +1,5 @@
+;; Charles' worksheet yay!
+
 ;; a worksheet file for charles for the Extempore hackday
 
 ;; - install Extempore
@@ -8,34 +10,116 @@
 ;; 
 ;;   https://dl.dropboxusercontent.com/u/18333720/extempore-hackday-samples.tar.gz
 
+
 (sys:load "libs/xtm.xtm")
+(sys:load "libs/core/instruments.xtm")
+
 
 
 ;; make sure you set the right paths!
-(define *user-sample-dir* "/path/to/samples")
-(load "/path/to/extempore-hackday/sampler-maps.xtm")
+(define *user-sample-dir* "/users/charles/Music/extempore-hackday-samples")
+(load "/users/charles/src/extempore-hackday/sampler-maps.xtm")
 
 (define-sampler kit sampler_note_hermite_c sampler_fx)
+(define-sampler piano sampler_note_hermite_c sampler_fx)
+(define-instrument synth synth_note_c synth_fx)
+
+
 
 (sm-load-map kit *808-kit-map*)
+(sm-load-map kit *NI-heavy-rock-kit-sample-map* 2)
 (sm-load-map kit *SSO-percussion-sample-map* 1)
+
+(sm-load-map piano *SSO-piano-sample-map*)
 
 (bind-func dsp:[float,float,i64,i64,float*]*
   (let ((osc (osc_mc_c 0.0))
         (lpf (lpf_mc_c 2)))
     (lambda (in time chan dat)
-      (kit in time chan dat))))
+      (kit in time chan dat)
+      (piano in time chan dat))))
+
 
 (dsp:set! dsp)
 
-(define drumloop
+(define drumloop)
   (lambda (beat dur)
+    ;;(println beat)
     (if (= (modulo beat 1) 0)
-        (play kit *gm-kick* 130 dur))
-    (if (= (modulo beat 3/4) 0)
-        (play kit 50 90 dur))
-    (play kit (cosr 45 9 1/7) (cosr 80 30 1/2) .1)
-    (play kit (cosr 59 9 1/9) (cosr 80 30 1/2) (* dur (random '(1/4 1/4 5))) 1)
+        (play kit *gm-kick* 140 dur))
+    (if (= (modulo beat 1/4) 0)
+        (play kit (cosr 45 9 1/7) 90 dur))
+    (play kit 48 (cosr 80 30 1/2) .1)
+    ;;(play kit (cosr 45 9 1/7) (cosr 80 30 1/2) .1)
+    ;;(play kit (cosr 59 9 1/9) (cosr 80 30 1/2) (* dur (random '(1/4 1/4 5))) 1)
     (callback (*metro* (+ beat (* .5 dur))) 'drumloop (+ beat dur) dur)))
 
 (drumloop (*metro* 'get-beat 4) 1/4)
+
+(play-note (now) kit 51 140 2000)
+
+(play kit
+
+(+ 1 2)
+
+(dotimes (i 8)
+  (play-note (+ (now) (* i 5000)) synth (+ 60 i) 80 4000))
+
+(play-note (now) piano (random '(60 60 67 72 84)) 150 44100)
+(play-note (now) synth (random '(60 60 67 72 84)) 150 44100)
+
+
+(define charlesloop 
+  (lambda (beat dur root)
+    (if (= (modulo beat 1) 0)
+	(play piano root 80 1))
+    (if (= (modulo beat 3/4) 0)
+	(play piano (+ (+ root (random '(0 12 24))) (random '(0 4 7 10))) 70 1))
+    (play piano (+ root 2 24) (cosr 40 30 1/5) .3)
+    (callback (*metro* (+ beat (* .5 dur))) 'charlesloop (+ beat dur) dur 47)))
+(charlesloop (*metro* 'get-beat 4) 1/4 36)
+
+(*metro* 'get-beat 4)
+
+(define fastloop )
+  (lambda (beat dur root)
+    ;;(println beat)
+    (play piano  (+ root (* 0.03 (random 100))) 90 0.1)
+    (callback (*metro* (+ beat (* .5 dur))) 'fastloop (+ beat dur) dur root)))
+
+(fastloop (*metro* 'get-beat 4) 1/4 54)
+
+
+60
+
+(play-note (now) kit *gm-kick* 140 10000)
+
+(+ 60 (random '(0 3 7 10)))
+(+ 60 (random '(0 3 6 9)))
+
+(define santa 
+  (lambda (beat dur lst)
+    ;;(println  (car lst))
+    ;;(println  (caar lst))
+    ;;(println  (cadar lst))
+    ;;(println (cadr (car lst)))
+    (play synth (+ 0 (caar lst)) 100 (* 2 (cadar lst)))
+    (play synth (+ 5 (caar lst)) 100 (* 2 (cadar lst)))
+    (play synth (+ 7 (caar lst)) 100 (* 2 (cadar lst)))
+    (play synth (+ 12 (caar lst)) 100 (* 2 (cadar lst)))
+  (callback 
+   (*metro* (+ beat (* .5 (cadar lst)))) 
+	    'santa (+ beat (* (cadar lst) 2)) (cadar lst) (rotate lst -1))))
+		
+(santa (*metro* 'get-beat 4) 1 '((67 1) (64 .5) (65 .5) (67 1) (67 1.5) (67 .5) (69 .5) (71 .5) (72 1) (72 1)))
+
+
+;;-7   0 3 7 10
+;;o7   0 3 6 9
+;;maj7 0 4 7 11
+;;7    0 4 7 10
+;;-7b5 0 3 6 10
+;; 
+
+(sys:load "libs/core/topclock.xtm")
+
