@@ -78,14 +78,25 @@
     (play kit (cosr 59 9 1/4) (cosr 80 30 1/2) (* dur (random '(1/4 1/2 5))) 1)
     (callback (*metro* (+ beat (* .5 dur))) 'drumloop (+ beat dur) dur)))
 
-
-(play-note (now) kit *gm-kick* 100 44100)
-(play-note (now) kit 36 150 0.2)
-
 (drumloop (*metro* 'get-beat 4) 1/4)
 
 
-(define drums
+(play-note (now) kit *gm-kick* 100 44100)
+(play-note (now) kit 36 150 1)
+
+
+(define sample-drums
+  (lambda (beat dur pitch)
+    (play kit pitch 120 dur)
+    (println pitch)
+    (callback (*metro* (+ beat (* .5 dur))) 'sample-drums (+ beat dur) dur (+ pitch 1))))
+
+(sample-drums (*metro* 'get-beat 4) 1/2 35)
+
+
+
+
+(define drums)
   (lambda (beat dur)
     (if (= (modulo beat 1) 0)
         (play kit (random '(35 36)) 130 dur))
