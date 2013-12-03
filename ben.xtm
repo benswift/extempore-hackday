@@ -10,21 +10,31 @@
 
 (sys:load "libs/xtm.xtm")
 
-
 ;; make sure you set the right paths!
 (define *user-sample-dir* "/path/to/samples")
-(load "/path/to/extempore-hackday/sampler-maps.xtm")
+(load "/Users/ben/Code/extempore-hackday/sampler-maps.xtm")
 
 (define-sampler kit sampler_note_hermite_c sampler_fx)
+(define-sampler piano sampler_note_hermite_c sampler_fx)
+(define-sampler sns sampler_note_hermite_c sampler_fx)
 
 (sm-load-map kit *808-kit-map*)
 (sm-load-map kit *SSO-percussion-sample-map* 1)
+(sm-load-map kit *SSO-solo-cello-sample-map* 2)
+(sm-load-map kit *speak-n-say-map* 3)
+
+(sm-load-map piano *SSO-piano-sample-map*)
+
+(sm-load-map sns *speak-n-say-map*)
 
 (bind-func dsp:[float,float,i64,i64,float*]*
   (let ((osc (osc_mc_c 0.0))
-        (lpf (lpf_mc_c 2)))
+	(bpf (lpf_mc_c 2)))
     (lambda (in time chan dat)
-      (kit in time chan dat))))
+      (+ (* 6. (subbass in time chan dat))
+         (piano in time chan dat)
+         (kit in time chan dat)
+         (sawlead in time chan dat)))))
 
 (dsp:set! dsp)
 
@@ -33,9 +43,127 @@
     (if (= (modulo beat 1) 0)
         (play kit *gm-kick* 130 dur))
     (if (= (modulo beat 3/4) 0)
-        (play kit 50 90 dur))
-    (play kit (cosr 45 9 1/7) (cosr 80 30 1/2) .1)
-    (play kit (cosr 59 9 1/9) (cosr 80 30 1/2) (* dur (random '(1/4 1/4 5))) 1)
-    (callback (*metro* (+ beat (* .5 dur))) 'drumloop (+ beat dur) dur)))
+	(play kit 38 90 (* dur 3/4)))
+    ;; (if (< (modulo beat 3/2) 1/2)
+    ;;     (play kit (random 37 43) 90 .1))
+    (play kit (cosr 45 9 1/7) (cosr 120 40 1/2) .1)
+    ;; (play kit (cosr 59 9 1/9) (cosr 80 30 1/2) dur 1)
+    (callback (*metro* (+ beat (* .5 dur)))
+	      'drumloop (+ beat dur) dur)))
 
 (drumloop (*metro* 'get-beat 4) 1/4)
+
+(*metro* 'set-tempo 80)
+
+(println (now))
+
+(define cello
+  (lambda (beat dur pitch)
+    (map (lambda (p)
+	   (play (random '(0 0 0 1/4 1/2 1))
+		 kit (pc:relative (+ pitch p)
+				  (if (= (modulo beat 1/2) 0) 7 0)
+				  (pc:scale 0 'aeolian)) (cosr 60 30 1/2) (* dur 1.3) 2))
+	 '(0 2 5 7 10))
+    (callback (*metro* (+ beat (* .5 dur))) 'cello (+ beat dur)
+	      (if (= (modulo beat 2) 0) 2 1/4)
+	      (if (> pitch 42) (pc:relative pitch -1 (pc:scale 0 'aeolian)) 62))))
+
+(cello (*metro* 'get-beat 4) 1/2 54)
+
+(define cosr-test
+  (lambda (beat dur)
+    (println 'gm *gm-kick-2*)
+    (println 'beat (modulo beat 4))
+    (println 'cosr 'beat '= (cosr 60 20 1/8))
+    (callback (*metro* (+ beat (* .5 dur))) 'cosr-test (+ beat dur) dur)))
+
+(cosr-test (*metro* 'get-beat 4) 1)
+
+(play-note (now) piano (random '(60 60 67 72 84)) 80 44100)
+
+(define bassline
+  (lambda (beat dur plist)
+    (map (lambda (o v)
+	   (play subbass
+		 (+ o -1 (car plist)
+		    (if (< (modulo beat 4) 3)
+			0
+			(* 12 (random -3 4))))
+		 (+ v (if (= (modulo (modulo beat 8) 3/4) 0)
+			  90 80))
+		 dur))
+	 '(36 60 72)
+	 '(0 -20 -30))
+    (callback (*metro* (+ beat (* .5 dur))) 'bassline (+ beat dur)
+	      dur
+	      (if (= (modulo beat 4) 0)
+		  (rotate plist -1) plist))))
+
+(bassline (*metro* 'get-beat 4) 1/4 '(0 -2 -5 3))
+
+(define speak
+  (lambda (beat dur idx str)
+    (play kit (- (char->integer (list-ref (string->list str) idx)) 32)
+	  120 dur 3)
+    (callback (*metro* (+ beat (* .5 dur)))
+	      'speak (+ beat dur)
+	      (if (= idx (+ -2 (string-length str))) (random 10 30)
+		  1)
+	      (modulo (+ idx 1) (string-length str))
+	      str)))
+
+(speak (*metro* 'get-beat 4) 1 0 "torben")
+(speak (*metro* 'get-beat 4) 1 0 "crankinballs")
+
+(define heavy
+  (lambda (beat dur)
+    (if (< (random) .1)
+	(play kit (random 57 65) 140 4 3))
+    (callback (*metro* (+ beat (* .5 dur))) 'heavy (+ beat dur) dur)))
+
+(heavy (*metro* 'get-beat 4) 1/4)
+
+(define list-iterator
+  (lambda (beat dur lst)
+    (println  beat (car lst))
+    (callback (*metro* (+ beat (* .5 dur))) 'list-iterator (+ beat dur) dur (rotate lst -1))))
+
+(list-iterator (*metro* 'get-beat 4) 1 '(1 2 3))
+
+(sys:load "libs/core/topclock.xtm")
+
+(define lead)
+(lambda (beat dur ps)
+  (for-each (lambda (p)
+              (if (< (random) .8)
+                  
+                  (play sawlead (+ p (pc:relative (if (< (modulo beat 4) 2) 60 65)
+                                                  (car ps)
+                                                  (pc:scale 0 'ionian)))
+                        (random 60 80) (car dur))))
+            '(0 13 16 -12))
+  (callback (*metro* (+ beat (* .5 (car dur))))
+            'lead
+            (+ beat (car dur))
+            (rotate dur -1)
+            (rotate ps -1)))
+
+(lead (*metro* 'get-beat 4)
+      '(1/4 1/4 1/2 1)
+      '(0 1 2 2))
+
+(define bline
+  (lambda (beat dur)
+    
+    (callback (*metro* (+ beat (* .5 dur))) 'bline (+ beat dur) dur)))
+
+(bline (*metro* 'get-beat 4) 1/4)
+
+(define fun-name
+  (lambda (beat dur)
+    (if (= (modulo beat 1) 0)
+        (play kit 51 100 .1))
+    (callback (*metro* (+ beat (* .5 dur))) 'fun-name (+ beat dur) dur)))
+
+(fun-name (*metro* 'get-beat 4) 1/4)

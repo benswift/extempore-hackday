@@ -52,7 +52,8 @@
 (define *gm-open-surdo* 87)
 
 (if (not (defined? '*user-sample-dir*))
-    (eval '(define *user-sample-dir* "/Users/ben/Music/sample-libs") 0))
+    (eval '(define *user-sample-dir* "/Users/ben/Music/sample-libs")
+	  (interaction-environment)))
 
 ;; Kit maps (using NI Battery 3 samples)
 
@@ -2056,6 +2057,42 @@
         (list "65.aif" 65)
         (list "66.aif" 66)))
 
+(define *speak-n-say-map*
+  (list (string-append *user-sample-dir* "/drums/SPEAK N SPELL/Letters Kit")
+	(list "SnS_A.wav" 65)
+	(list "SnS_B.wav" 66)
+	(list "SnS_Blood.wav" 59)
+	(list "SnS_Broken.wav" 60)
+	(list "SnS_C.wav" 67)
+	(list "SnS_D.wav" 68)
+	(list "SnS_E.wav" 69)
+	(list "SnS_Electric.wav" 61)
+	(list "SnS_F.wav" 70)
+	(list "SnS_G.wav" 71)
+	(list "SnS_H.wav" 72)
+	(list "SnS_Heavy.wav" 62)
+	(list "SnS_I.wav" 73)
+	(list "SnS_J.wav" 74)
+	(list "SnS_K.wav" 75)
+	(list "SnS_L.wav" 76)
+	(list "SnS_M.wav" 77)
+	(list "SnS_N.wav" 78)
+	(list "SnS_O.wav" 79)
+	(list "SnS_ON1.wav" 57)
+	(list "SnS_ON2.wav" 58)
+	(list "SnS_P.wav" 80)
+	(list "SnS_Q.wav" 81)
+	(list "SnS_R.wav" 82)
+	(list "SnS_Rockit.wav" 63)
+	(list "SnS_S.wav" 83)
+	(list "SnS_Spell.wav" 64)
+	(list "SnS_T.wav" 84)
+	(list "SnS_U.wav" 85)
+	(list "SnS_V.wav" 86)
+	(list "SnS_W.wav" 87)
+	(list "SnS_X.wav" 88)
+	(list "SnS_Y.wav" 89)
+	(list "SnS_Z.wav" 90)))
 
 ;; helper functions
 
