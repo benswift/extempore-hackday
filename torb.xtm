@@ -18,13 +18,17 @@
 (define-sampler kit sampler_note_hermite_c sampler_fx)
 (define-sampler piano sampler_note_hermite_c sampler_fx)
 (define-sampler trombone sampler_note_hermite_c sampler_fx)
+(define-sampler coolkit sampler_note_hermite_c sampler_fx)
+(define-sampler violin sampler_note_hermite_c sampler_fx)
+
 
 (sm-load-map kit *808-kit-map*)
 (sm-load-map kit *SSO-percussion-sample-map* 1)
 
 (sm-load-map piano *SSO-piano-sample-map*)
 (sm-load-map trombone *SSO-tenor-trombone-sample-map*)
-
+(sm-load-map coolkit *NI-heavy-rock-kit-sample-map*)
+(sm-load-map violin *SSO-violin-2-sample-map*)
 
 (bind-func dsp:[float,float,i64,i64,float*]*
   (let ((osc (osc_mc_c 0.0))
@@ -33,7 +37,9 @@
       (+  (kit in time chan dat)
           (sawlead in time chan dat)
           (piano in time chan dat)
-          (trombone in time chan dat)))))
+          (trombone in time chan dat)
+          (coolkit in time chan dat)
+          (violin in time chan dat)))))
 
 
 (dsp:set! dsp)
@@ -132,7 +138,7 @@
 (classic (*metro* 'get-beat 4) 1/4)
 
 
-(define tremy
+(define tremy)
   (lambda (beat dur)
     ;;(if (= (modulo beat 1/8) 0)
     ;;(play trombone (random 40 60) 80 dur)
@@ -148,16 +154,73 @@
   (lambda (beat dur)
     (if (= (modulo beat 2) 0)
         (play kit 41 150 dur))
-    (if (= (modulo beat 1) 0)
-        (play kit 38 (random 100 150) dur))
-    (if (= (modulo beat (random '(1/4 1/8))) 0)
-        (play kit 50 (random 100 120) dur))
+    ;;(if (= (modulo beat 1) 0)
+    ;;   (play coolkit 38 (sinr 100 20 1/4) dur))
+    ;;(if (= (modulo beat (random '(1/4 1/2))) 0)
+    (play coolkit 50 (cosr 50 60 1/4) dur)
+    (play coolkit (random 0 50) 100 dur)
     (callback (*metro* (+ beat (* .5 dur))) 'bitchen (+ beat dur) dur)))
-
-(play-note (now) kit 50 200 44100)
 
 (bitchen (*metro* 'get-beat 4) 1/4)
 
+(define darkpiano)
+  (lambda (beat dur)
+    (play piano (sinr 10 10 1/5) (cosr 120 20 1/3) dur)
+    (callback (*metro* (+ beat (* .5 dur))) 'darkpiano (+ beat dur) dur)))
 
-(play-note (now) trombone 60 100 (* 44100 8))
+(darkpiano (*metro* 'get-beat 4) 1/4)
+
+
+
+(play-note (now) coolkit *gm-hand-clap* 100 44100)
+
+
+(sys:load "libs/core/topclock.xtm")
+
+
+(play-note (now) trombone 60 100 (* 44100 1))
+
+
+
+(define viomadness)
+  (lambda (beat dur)
+    (play violin (+ (sinr 60 20 1/4) (random 10 15)) (random 80 100) dur)
+    (callback (*metro* (+ beat (* .5 dur))) 'viomadness (+ beat dur) dur)))
+
+(viomadness (*metro* 'get-beat 4) 1/8)
+
+(play-note (now) violin 60 100 (* 44100 1))
+
+
+
+(define fun-name
+  (lambda (beat dur)
+    (if (= (modulo beat 4) 0)
+      (play coolkit 20 150 dur))
+    (if (= (modulo beat 4) 2)
+      (play coolkit 10 60 dur))
+    (if (= (modulo beat 1/2) 0)
+      (play coolkit (random 20 40) 40 dur))
+    (callback (*metro* (+ beat (* .5 dur))) 'fun-name (+ beat dur) dur)))
+
+(fun-name (*metro* 'get-beat 4) 1/4)
+
+
+;; GRAPHICS:
+
+;; (define width 800)
+;; (define height 600)
+;; (bind-val width float width)
+;; (bind-val height float height)
+;; (define fullscreen #f)
+;; 
+;; (sys:load "/Users/ben/Code/xtm/lib/vg-setup.xtm")
+;; 
+;; (ipc:xtm-render-setup "utility")
+;; 
+;; (bind-func gl_render
+;;   (lambda ()
+;;     ;;          pre  opaq trans post    data
+;;     (xtm_render null null null  vgframe null)
+;;     void))
 
