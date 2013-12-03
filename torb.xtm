@@ -17,11 +17,13 @@
 
 (define-sampler kit sampler_note_hermite_c sampler_fx)
 (define-sampler piano sampler_note_hermite_c sampler_fx)
+(define-sampler trombone sampler_note_hermite_c sampler_fx)
 
 (sm-load-map kit *808-kit-map*)
 (sm-load-map kit *SSO-percussion-sample-map* 1)
 
 (sm-load-map piano *SSO-piano-sample-map*)
+(sm-load-map trombone *SSO-tenor-trombone-sample-map*)
 
 
 (bind-func dsp:[float,float,i64,i64,float*]*
@@ -30,17 +32,22 @@
     (lambda (in time chan dat)
       (+  (kit in time chan dat)
           (sawlead in time chan dat)
-          (piano in time chan dat)))))
+          (piano in time chan dat)
+          (trombone in time chan dat)))))
 
 
 (dsp:set! dsp)
+
+
+
+
 
 
 (random '(10 10 10 40 50 80))
 
 (define nuts)
   (lambda (beat dur)
-    (play-note (now) sawlead (cosr 40 60 1/4) (random '(20 20 20 50)) (* 44100 0.5))
+    (play sawlead (cosr 40 60 1/4) (sinr 30 20 1/4) dur)
     (callback (*metro* (+ beat (* .5 dur))) 'nuts (+ beat dur) dur)))
 
 (nuts (*metro* 'get-beat 4) 1/4)
@@ -95,7 +102,6 @@
 
 
 
-
 (define drums)
   (lambda (beat dur)
     (if (= (modulo beat 1) 0)
@@ -106,16 +112,52 @@
         (play kit 40 (cosr 50 50 1/8) dur))
     (if (= (modulo beat (random '(1 1/2 1/4))) 0)
         (play kit 41 100 dur))
+    (if (= (modulo beat 1/4) 0)
+        (play kit (cosr 50 5 1/9) 100 dur))
+    (if (= (modulo beat 1/4) 0)
+        (play kit (cosr 70 10 1/5) 150 dur))
+    (if (= (modulo beat 1/4) 0)
+        (play kit (cosr 50 20 1/16) 150 dur))
     (callback (*metro* (+ beat (* .5 dur))) 'drums (+ beat dur) dur)))
 
-(drums (*metro* 'get-beat 8) 1/8)
+(drums (*metro* 'get-beat 8) 1/16)
 
 (define classic)
   (lambda (beat dur)
-    (play piano (cosr 70 10 1/4) 50 1)
-    (if (= (modulo beat 2) 0)
-      (play piano (random '(30 40 50)) 80 1))
+    (play piano (cosr 70 10 1/4) 100 1)
+    (if (= (modulo beat 1) 0)
+      (play piano (random '(32 32 40 45)) 40 1))
     (callback (*metro* (+ beat (* .5 dur))) 'classic (+ beat dur) dur)))
 
 (classic (*metro* 'get-beat 4) 1/4)
+
+
+(define tremy)
+  (lambda (beat dur)
+    ;;(if (= (modulo beat 1/8) 0)
+    ;;(play trombone (random 40 60) 80 dur)
+    (play trombone (cosr 60 10 1/8) 100 dur)
+    ;;(if (= (modulo beat 1/2) 0)
+    ;;  (play piano (random 40 60) 120 dur))
+    (callback (*metro* (+ beat (* .5 dur))) 'tremy (+ beat dur) dur)))
+
+(tremy (*metro* 'get-beat 4) 1/4)
+
+
+(define bitchen)
+  (lambda (beat dur)
+    (if (= (modulo beat 2) 0)
+        (play kit 41 150 dur))
+    (if (= (modulo beat 1) 0)
+        (play kit 38 (random 100 150) dur))
+    (if (= (modulo beat (random '(1/4 1/8))) 0)
+        (play kit 50 (random 100 120) dur))
+    (callback (*metro* (+ beat (* .5 dur))) 'bitchen (+ beat dur) dur)))
+
+(play-note (now) kit 50 200 44100)
+
+(bitchen (*metro* 'get-beat 4) 1/4)
+
+
+(play-note (now) trombone 50 100 44100)
 
