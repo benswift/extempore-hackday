@@ -42,9 +42,12 @@
 
 (play-note (now) piano (random '(60 60 67 72 84)) 80 44100)
 
+
+(random '(32 30 60 67 72))
+
 (define tuneage
   (lambda (beat dur)
-    (play-note (now) piano (random '(30 60 67 72 84)) 100 44100)
+    (play-note (now) piano (cosr 40 60 1/8) 100 44100)
     (callback (*metro* (+ beat (* .5 dur))) 'tuneage (+ beat dur) dur)))
 
 (tuneage (*metro* 'get-beat 4) 1/4)
